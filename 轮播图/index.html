@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <style>
+        * {
+            padding: 0px;
+            margin: 0px;
+            list-style: none;
+        }
+        .wrapper {
+            position: relative;
+            margin: 100px auto;
+            width: 400px;
+            height: 200px;
+            border: 1px solid black;
+            overflow: hidden;
+        }
+        .wrapper ul {
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 2000px;
+            height: 200px;
+        }
+        .wrapper ul li {
+            float: left;
+            width: 400px;
+            height: 200px;
+        }
+        .wrapper ul li img{
+            width: 400px;
+            height: 200px;
+        }
+        .wrapper .sliderIndex {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            width: 80px;
+            height: 20px;
+            margin-left: -40px;
+            text-align: center;
+        }
+        .wrapper .sliderIndex i {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: black;
+            margin-right: 4px;
+            cursor: pointer;
+        }
+        
+        .wrapper .sliderIndex i.active {
+            background: red;
+            width: 12px;
+            height: 12px;
+        }   
+        .wrapper .btn {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: black;
+            opacity: 0.5;
+            top: 50%;
+            margin-top: -15px;
+            text-align: center;
+            line-height: 30px;
+            color: white;
+            cursor: pointer;
+        }
+        .wrapper .btn.leftBtn {
+            left: 20px;
+        }
+        .wrapper .btn.rightBtn {
+            right: 20px;
+        }
+        .wrapper .btn:hover {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <ul id='sliderPage'>
+            <li><img src="cat1.jpg" alt=""></li>
+            <li><img src="cat2.jpg" alt=""></li>
+            <li><img src="cat3.jpg" alt=""></li>
+            <li><img src="cat4.jpg" alt=""></li>
+            <li><img src="cat1.jpg" alt=""></li>
+        </ul>
+        <div class="sliderIndex">
+            <i class='active'></i>
+            <i></i>
+            <i></i>
+            <i></i>
+        </div>
+        <div class='btn leftBtn' id='leftBtn'>&lt</div>
+        <div class='btn rightBtn' id='rightBtn'>&gt</div>
+    </div>
+    <script src='move.js'></script>
+    <script>
+        var sliderTimer = null;
+        var sliderPage = document.getElementById('sliderPage');
+        var leftBtn = document.getElementById('leftBtn');
+        var rightBtn = document.getElementById('rightBtn');
+        var index = 0;
+        var num = sliderPage.children.length - 1;
+        var moveWidth = sliderPage.children[0].offsetWidth;
+        var lock = true;
+        var oIArr = document.getElementsByTagName('i');
+
+        for (var i = 0; i < oIArr.length; i++) {
+            oIArr[i].onclick = (function (sliderIndex) {
+                return function () {
+                    clearInterval(sliderTimer);
+                    index = sliderIndex;
+                    startMove(sliderPage, {left: -moveWidth * sliderIndex}, function () {
+                        sliderTimer = window.setInterval(autoMove, 1500);
+                        lock = true;
+                        changeIndex(index);
+                    });
+                }
+            })(i)
+        }
+
+
+
+
+
+        // 从右向左
+        leftBtn.onclick = function () {
+            autoMove(-1);
+        }
+
+        // 从左向右 默认方向 1
+        rightBtn.onclick = function () {
+            autoMove(1);
+        }
+
+
+        function autoMove(direction) {
+            if (lock) {
+                lock = false;
+                clearInterval(sliderTimer);
+                if (direction === 1 || !direction) {
+                    index++;
+                    startMove(sliderPage, {left: sliderPage.offsetLeft - moveWidth}, function () {
+                        if (index === 4) {
+                            sliderPage.style.left = '0px';
+                            index = 0;
+                        }
+                        sliderTimer = window.setInterval(autoMove, 1500);
+                        lock = true;
+                        changeIndex(index);
+                    });
+                }else if (direction === -1) {
+                    if (sliderPage.offsetLeft === 0) {
+                        sliderPage.style.left = -moveWidth * num + 'px';
+                        index = num;
+                    }
+                    index--;
+                    startMove(sliderPage, {left: sliderPage.offsetLeft + moveWidth},function () {
+                        sliderTimer = window.setInterval(autoMove, 1500);
+                        lock = true;
+                        changeIndex(index);
+                    });
+                }
+            }
+        }
+
+        function changeIndex (index) {
+            for (var i = 0; i < oIArr.length; i++) {
+                oIArr[i].className = '';
+            }
+            oIArr[index].className = 'active';
+        }
+
+        sliderTimer = window.setInterval(autoMove, 1500);
+
+
+
+
+    </script>
+</body>
+</html>
